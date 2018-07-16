@@ -1,0 +1,19 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+      "tslint:recommended",
+      "tslint-config-prettier"
+    ],
+    "rulesDirectory": ["tslint-microsoft-contrib", "tslint-plugin-prettier"],
+    "jsRules": {},
+    "rules": {
+      "prettier": true,
+      "object-literal-sort-keys": false,
+      "no-unused-variable": [true, {"ignore-pattern": "^_"}]
+    },
+    "linterOptions": {
+      "exclude": [
+        "**/*.js"
+      ]
+    }
+}

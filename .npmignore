@@ -1,0 +1,7 @@
+src/
+node_modules/
+.gitignore
+.npmignore
+.prettierrc
+tsconfig.json
+tslint.json

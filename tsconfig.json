@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "build",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "lib": ["es6", "es2017"]
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules"]
+}

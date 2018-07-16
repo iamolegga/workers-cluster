@@ -1,0 +1,43 @@
+{
+  "name": "workers-cluster",
+  "version": "0.0.1",
+  "description": "start and stop workers cluster easy",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamolegga/workers-cluster.git"
+  },
+  "keywords": [
+    "worker",
+    "workers",
+    "cluster",
+    "graceful",
+    "shutdown"
+  ],
+  "author": "Oleg Repin <iamolegga@gmail.com> (https://github.com/iamolegga)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iamolegga/workers-cluster/issues"
+  },
+  "homepage": "https://github.com/iamolegga/workers-cluster#readme",
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "@types/node": "^10.5.2",
+    "prettier": "^1.13.7",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "tslint-microsoft-contrib": "^5.0.3",
+    "tslint-plugin-prettier": "^1.3.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "debug": "^3.1.0"
+  }
+}
