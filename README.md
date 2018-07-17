@@ -5,17 +5,43 @@
 ## Example
 
 ```js
-// index.js
-const { startCluster } = require('workers-cluster');
-const pathToWorker = `${__dirname}/workerA.js`;
-const workerInstances = 10;
-const workers = { [pathToWorker]: workerInstances };
-startCluster(workers);
+/**
+ * index.js
+ * 
+ * In your entrypoint index.js file you should call
+ * `startCluster` function with one argument - object, where
+ * keys - are full paths to workers,
+ * and values - are count of worker instances (child processes).
+ * `startCluster` returns Promise, that will be fulfilled
+ * only in master process and only when all workers instances
+ * will be started
+ */
 
-// workerA.js
+const { startCluster } = require('workers-cluster');
+
+const pathToWorkerA = `${__dirname}/workerA.js`;
+const workerAInstances = 10;
+
+const pathToWorkerB = `${__dirname}/workerB.js`;
+const workerBInstances = 1;
+
+const workers = {
+  [pathToWorkerA]: workerAInstances,
+  [pathToWorkerB]: workerBInstances,
+};
+startCluster(workers).then(() => {
+  console.log('All workers have been started')
+});
+
+/**
+ * workerA.js / workerB.js
+ * 
+ * Worker module MUST export `start` and `close` methods.
+ * Both of them must return Promise.
+ */
+
 let interval
-// worker module must export `start` and `close` methods
-exports.start = () => {
+exports.start = async () => {
   interval = setInterval(() => {
     // this will break worker's process
     // but worker will be restarted automatically
@@ -27,7 +53,6 @@ exports.start = () => {
 };
 exports.close = () => {
   clearInterval(interval);
-  // `close` method must explicitly exit from process
-  process.exit(0);
+  return Promise.resolve();
 };
 ```
