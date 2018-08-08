@@ -12,7 +12,7 @@ export interface IWorker {
 }
 
 interface INotifyMessage {
-  worker: string;
+  WK_WORKER_STARTED: true;
 }
 
 const debug = debugModule('workers-cluster');
@@ -25,16 +25,8 @@ export function startCluster(workers: IWorkers) {
         agg[current] = 0;
         return agg;
       },
-      {} as { [k: string]: number },
+      {} as IWorkers,
     );
-    debug('initializing workers');
-    Object.entries(workers).forEach(([WK_WORKER_PATH, count]) => {
-      for (let i = 0; i < count; i++) {
-        const worker = cluster.fork({ WK_WORKER_PATH, WK_NOTIFY: true });
-        handleExit(worker, WK_WORKER_PATH);
-      }
-    });
-    debug(`all workers initialized`);
 
     process.on('SIGTERM', () => {
       restartChildOnError = false;
@@ -45,26 +37,26 @@ export function startCluster(workers: IWorkers) {
         }
       });
     });
+
+    debug('initializing workers');
+
     return new Promise<void>(resolve => {
-      process.on('message', (msg: any) => {
-        if (
-          typeof msg === 'object' &&
-          msg !== null &&
-          'worker' in (msg as object)
-        ) {
-          const { worker } = msg as INotifyMessage;
-          startMap[worker]++;
-          if (!Object.entries(workers).find(([k, v]) => startMap[k] !== v)) {
-            resolve();
-          }
+      Object.entries(workers).forEach(([WK_WORKER_PATH, count]) => {
+        for (let i = 0; i < count; i++) {
+          const worker = cluster.fork({ WK_WORKER_PATH, WK_NOTIFY: true });
+          handleFirstStart(workers, startMap, worker, WK_WORKER_PATH, resolve);
+          handleExit(worker, WK_WORKER_PATH);
         }
       });
+      debug(`all workers initialized`);
     });
   } else {
     const workerPath = process.env.WK_WORKER_PATH!;
     const worker = require(workerPath) as IWorker;
+
     debug(`starting worker ${basename(workerPath)}`);
     worker.start().then(notifyMaster);
+
     process.on('SIGTERM', () => {
       const workerMeta = `${basename(workerPath)}:${process.pid}`;
       debug(`worker ${workerMeta} got SIGTERM, closing`);
@@ -106,13 +98,33 @@ function handleExit(worker: cluster.Worker, WK_WORKER_PATH: string) {
   });
 }
 
+function handleFirstStart(
+  workers: IWorkers,
+  workersStarted: IWorkers,
+  worker: cluster.Worker,
+  workerPath: string,
+  resolve: () => void,
+) {
+  worker.on('message', (msg: any) => {
+    if (isNotifyMessage(msg)) {
+      workersStarted[workerPath] += 1;
+      if (Object.entries(workers).every(([k, v]) => workersStarted[k] === v)) {
+        debug(`all workers started`);
+        resolve();
+      }
+    }
+  });
+}
+
 function notifyMaster() {
-  const worker = process.env.WK_WORKER_PATH!;
   if (process.env.WK_NOTIFY) {
-    const message: INotifyMessage = { worker };
+    const message: INotifyMessage = { WK_WORKER_STARTED: true };
     process.send!(message);
   }
-  return worker;
+}
+
+function isNotifyMessage(o: any): o is INotifyMessage {
+  return typeof o === 'object' && o !== null && o.WK_WORKER_STARTED === true;
 }
 
 function noop() {} // tslint:disable-line no-empty
