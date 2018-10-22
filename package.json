@@ -8,7 +8,14 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "npm run clear && npm run lint && tsc -p ./tsconfig.build.json",
+    "build-n-test": "npm run build && npm t",
+    "clear": "rm -rf ./build",
+    "dev": "nodemon",
+    "lint": "tslint -p ./ -c ./tslint.json --fix",
+    "prepublishOnly": "npm run build-n-test",
+    "preversion": "npm run build-n-test",
+    "test": "mocha -r ts-node/register test/**/*.test.ts --exit --colors"
   },
   "repository": {
     "type": "git",
@@ -28,9 +35,15 @@
   },
   "homepage": "https://github.com/iamolegga/workers-cluster#readme",
   "devDependencies": {
+    "@types/chai": "^4.1.6",
     "@types/debug": "0.0.30",
+    "@types/mocha": "^5.2.5",
     "@types/node": "^10.5.2",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.4",
     "prettier": "^1.13.7",
+    "ts-node": "^7.0.1",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "tslint-microsoft-contrib": "^5.0.3",
@@ -39,5 +52,10 @@
   },
   "dependencies": {
     "debug": "^3.1.0"
+  },
+  "nodemonConfig": {
+    "watch": ["src", "test"],
+    "ext": "ts",
+    "exec": "npm run build-n-test"
   }
 }
