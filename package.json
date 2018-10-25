@@ -8,7 +8,15 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "npm run lint && tsc -p ./tsconfig.build.json",
+    "build-n-test": "npm run build && npm t",
+    "clear": "rm -rf ./build",
+    "dev": "npm run clear && npm run build && nodemon",
+    "lint": "tslint -p ./ -c ./tslint.json --fix",
+    "lint-n-test": "npm run lint && npm run test",
+    "prepublishOnly": "npm run clear && npm run build-n-test",
+    "preversion": "npm run clear && npm run build-n-test",
+    "test": "ts-node test/runner.ts"
   },
   "repository": {
     "type": "git",
@@ -30,7 +38,10 @@
   "devDependencies": {
     "@types/debug": "0.0.30",
     "@types/node": "^10.5.2",
+    "colors": "^1.3.2",
+    "nodemon": "^1.18.4",
     "prettier": "^1.13.7",
+    "ts-node": "^7.0.1",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "tslint-microsoft-contrib": "^5.0.3",
@@ -39,5 +50,13 @@
   },
   "dependencies": {
     "debug": "^3.1.0"
+  },
+  "nodemonConfig": {
+    "exec": "npm run lint-n-test",
+    "ext": "ts",
+    "watch": [
+      "build",
+      "test"
+    ]
   }
 }
